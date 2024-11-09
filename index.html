@@ -80,13 +80,21 @@
                 </select>
             </div>
 
+            <!-- Width Control -->
+            <div class="control-group">
+                <label for="outputWidth">Output Width</label>
+                <div class="width-control">
+                    <input type="range" id="outputWidth" min="20" max="100" value="100" class="width-slider">
+                    <span class="width-value">100%</span>
+                </div>
+            </div>
+
             <!-- Style Toggles -->
             <div class="control-group">
                 <label>Style</label>
                 <div class="theme-toggles">
                     <button id="boldToggle" class="theme-button">Bold</button>
                     <button id="italicToggle" class="theme-button">Italic</button>
-                    <button id="fullscreenToggle" class="theme-button">Fullscreen</button>
                 </div>
             </div>
 
@@ -106,12 +114,19 @@
             </div>
         </div>
 
-        <!-- Action Button -->
-        <button id="startButton">Start Typing</button>
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button id="startButton">Start Typing</button>
+            <button id="fullscreenButton" class="fullscreen-button">
+                <span class="fullscreen-icon">⛶</span>
+                Start Fullscreen
+            </button>
+        </div>
 
         <!-- Output Display -->
         <div id="output"></div>
     </div>
+
     <script src="script.js"></script>
 </body>
 

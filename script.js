@@ -3,8 +3,12 @@ const elements = {
     output: document.getElementById('output'),
     userInput: document.getElementById('userInput'),
     startButton: document.getElementById('startButton'),
+    fullscreenButton: document.getElementById('fullscreenButton'),
     fontFamily: document.getElementById('fontFamily'),
     fontSize: document.getElementById('fontSize'),
+    textColor: document.getElementById('textColor'),
+    outputWidth: document.getElementById('outputWidth'),
+    widthValue: document.querySelector('.width-value'),
     speed: document.getElementById('speed'),
     boldToggle: document.getElementById('boldToggle'),
     italicToggle: document.getElementById('italicToggle'),
@@ -17,9 +21,8 @@ const elements = {
     removeImage: document.getElementById('removeImage'),
     charCounter: document.querySelector('.char-counter'),
     errorMessage: document.getElementById('errorMessage'),
-    presetButtons: document.querySelectorAll('.preset-button'),
-    textColor: document.getElementById('textColor'),
-    fullscreenToggle: document.getElementById('fullscreenToggle')
+    controls: document.querySelector('.controls'),
+    presetButtons: document.querySelectorAll('.preset-button')
 };
 
 // Configuration Objects
@@ -101,8 +104,11 @@ const config = {
 const state = {
     isBold: false,
     isItalic: false,
+    isFullscreen: false,
+    outputWidth: '100',
     systemThemePreference: window.matchMedia('(prefers-color-scheme: dark)'),
-    isFullscreen: false
+    isTyping: false,
+    currentTypingPromise: null
 };
 
 // Utility Functions
@@ -119,6 +125,43 @@ const utils = {
 
     hideError: () => {
         elements.errorMessage.style.display = 'none';
+    },
+
+    resetTyping: () => {
+        if (state.isTyping) {
+            state.isTyping = false;
+            if (state.currentTypingPromise) {
+                state.currentTypingPromise.cancel = true;
+            }
+            const contentWrapper = elements.output.querySelector('.output-content') || elements.output;
+            contentWrapper.textContent = '';
+            elements.startButton.disabled = false;
+        }
+    }
+};
+
+// Style Management
+const styleManager = {
+    updateOutputStyle: () => {
+        elements.output.style.fontFamily = elements.fontFamily.value;
+        elements.output.style.fontSize = `${elements.fontSize.value}px`;
+        elements.output.style.fontWeight = state.isBold ? 'bold' : 'normal';
+        elements.output.style.fontStyle = state.isItalic ? 'italic' : 'normal';
+        elements.output.style.color = elements.textColor.value || 'inherit';
+        document.documentElement.style.setProperty('--output-width', `${state.outputWidth}%`);
+    },
+
+    updateCharCounter: () => {
+        const text = elements.userInput.value;
+        const chars = text.length;
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        elements.charCounter.textContent = `${chars} characters | ${words} words`;
+    },
+
+    updateWidthValue: () => {
+        state.outputWidth = elements.outputWidth.value;
+        elements.widthValue.textContent = `${state.outputWidth}%`;
+        styleManager.updateOutputStyle();
     }
 };
 
@@ -162,28 +205,83 @@ const themeManager = {
     }
 };
 
-// Style Management
-const styleManager = {
-    updateOutputStyle: () => {
-        elements.output.style.fontFamily = elements.fontFamily.value;
-        elements.output.style.fontSize = `${elements.fontSize.value}px`;
-        elements.output.style.fontWeight = state.isBold ? 'bold' : 'normal';
-        elements.output.style.fontStyle = state.isItalic ? 'italic' : 'normal';
+// Fullscreen Management
+const fullscreenManager = {
+    enterFullscreen: async () => {
+        if (state.isFullscreen) return;
+
+        utils.resetTyping(); // Reset any ongoing typing
+
+        const text = elements.userInput.value.trim();
+        if (!text) {
+            utils.showError('Please enter some text to type');
+            return;
+        }
+
+        state.isFullscreen = true;
+        elements.output.classList.add('fullscreen');
+
+        // Create exit button
+        const exitButton = document.createElement('button');
+        exitButton.className = 'exit-fullscreen';
+        exitButton.textContent = 'Exit Fullscreen';
+        exitButton.addEventListener('click', fullscreenManager.exitFullscreen);
+        document.body.appendChild(exitButton);
+
+        // Wrap output content
+        if (!elements.output.querySelector('.output-content')) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'output-content';
+            // Move existing content into wrapper
+            while (elements.output.firstChild) {
+                wrapper.appendChild(elements.output.firstChild);
+            }
+            elements.output.appendChild(wrapper);
+        }
+
+        // Hide controls and buttons
+        elements.controls.style.display = 'none';
+        elements.startButton.style.display = 'none';
+        elements.fullscreenButton.style.display = 'none';
+
+        // Start typing
+        try {
+            utils.hideError();
+            await typingManager.typeText(text);
+        } catch (error) {
+            utils.showError('An error occurred. Please try again.');
+            console.error('Error:', error);
+            fullscreenManager.exitFullscreen();
+        }
     },
 
-    updateCharCounter: () => {
-        const text = elements.userInput.value;
-        const chars = text.length;
-        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-        elements.charCounter.textContent = `${chars} characters | ${words} words`;
+    exitFullscreen: () => {
+        if (!state.isFullscreen) return;
+
+        utils.resetTyping(); // Reset any ongoing typing
+
+        state.isFullscreen = false;
+        elements.output.classList.remove('fullscreen');
+
+        // Remove exit button
+        const exitButton = document.querySelector('.exit-fullscreen');
+        if (exitButton) {
+            exitButton.remove();
+        }
+
+        // Show controls and buttons
+        elements.controls.style.display = 'grid';
+        elements.startButton.style.display = 'block';
+        elements.fullscreenButton.style.display = 'block';
+
+        // Update styles
+        styleManager.updateOutputStyle();
     },
 
-    updateOutputStyle: () => {
-        elements.output.style.fontFamily = elements.fontFamily.value;
-        elements.output.style.fontSize = `${elements.fontSize.value}px`;
-        elements.output.style.fontWeight = state.isBold ? 'bold' : 'normal';
-        elements.output.style.fontStyle = state.isItalic ? 'italic' : 'normal';
-        elements.output.style.color = elements.textColor.value || 'inherit';
+    handleEscapeKey: (e) => {
+        if (e.key === 'Escape' && state.isFullscreen) {
+            fullscreenManager.exitFullscreen();
+        }
     }
 };
 
@@ -218,7 +316,14 @@ const typingManager = {
 
     async typeText(text) {
         try {
-            elements.output.textContent = '';
+            const contentWrapper = elements.output.querySelector('.output-content') || elements.output;
+            contentWrapper.textContent = '';
+
+            // Create a new promise for this typing session
+            const typingPromise = { cancel: false };
+            state.currentTypingPromise = typingPromise;
+            state.isTyping = true;
+
             let currentText = '';
             const words = text.split(' ');
             const totalWords = words.length;
@@ -228,6 +333,11 @@ const typingManager = {
             styleManager.updateOutputStyle();
 
             for (let i = 0; i < words.length; i++) {
+                // Check if typing should be cancelled
+                if (typingPromise.cancel) {
+                    return;
+                }
+
                 const word = words[i];
                 const typingSpeed = this.getTypingSpeed();
 
@@ -241,8 +351,9 @@ const typingManager = {
 
                     // Type the typo
                     for (let char of typoWord) {
+                        if (typingPromise.cancel) return;
                         currentText += char;
-                        elements.output.textContent = currentText;
+                        contentWrapper.textContent = currentText;
                         await utils.sleep(utils.getRandomInt(typingSpeed.min, typingSpeed.max));
                     }
 
@@ -251,8 +362,9 @@ const typingManager = {
 
                     // Delete the typo
                     for (let j = 0; j < typoWord.length; j++) {
+                        if (typingPromise.cancel) return;
                         currentText = currentText.slice(0, -1);
-                        elements.output.textContent = currentText;
+                        contentWrapper.textContent = currentText;
                         await utils.sleep(utils.getRandomInt(30, 80));
                     }
 
@@ -261,76 +373,49 @@ const typingManager = {
 
                     // Type correct word
                     for (let char of word) {
+                        if (typingPromise.cancel) return;
                         currentText += char;
-                        elements.output.textContent = currentText;
+                        contentWrapper.textContent = currentText;
                         await utils.sleep(utils.getRandomInt(typingSpeed.min, typingSpeed.max));
                     }
                 } else {
                     // Type normally
                     for (let char of word) {
+                        if (typingPromise.cancel) return;
                         currentText += char;
-                        elements.output.textContent = currentText;
+                        contentWrapper.textContent = currentText;
                         await utils.sleep(utils.getRandomInt(typingSpeed.min, typingSpeed.max));
                     }
                 }
 
                 // Add space between words
                 if (i < words.length - 1) {
+                    if (typingPromise.cancel) return;
                     currentText += ' ';
-                    elements.output.textContent = currentText;
+                    contentWrapper.textContent = currentText;
                     await utils.sleep(utils.getRandomInt(typingSpeed.min, typingSpeed.max));
                 }
             }
+
+            state.isTyping = false;
+            elements.startButton.disabled = false;
         } catch (error) {
+            state.isTyping = false;
+            elements.startButton.disabled = false;
             utils.showError('An error occurred while typing. Please try again.');
             console.error('Typing error:', error);
         }
     }
 };
 
-const fullscreenManager = {
-    toggleFullscreen: () => {
-        state.isFullscreen = !state.isFullscreen;
-        elements.fullscreenToggle.classList.toggle('active');
-        elements.output.classList.toggle('fullscreen');
-
-        if (state.isFullscreen) {
-            // Create exit button if it doesn't exist
-            if (!document.querySelector('.exit-fullscreen')) {
-                const exitButton = document.createElement('button');
-                exitButton.className = 'exit-fullscreen';
-                exitButton.textContent = 'Exit Fullscreen';
-                exitButton.addEventListener('click', () => {
-                    fullscreenManager.toggleFullscreen();
-                });
-                document.body.appendChild(exitButton);
-            }
-            // Hide controls and start button
-            elements.controls.style.display = 'none';
-            elements.startButton.style.display = 'none';
-        } else {
-            // Remove exit button and show controls
-            const exitButton = document.querySelector('.exit-fullscreen');
-            if (exitButton) {
-                exitButton.remove();
-            }
-            elements.controls.style.display = 'grid';
-            elements.startButton.style.display = 'block';
-        }
-
-        // Update styles to ensure proper display
-        styleManager.updateOutputStyle();
-    },
-
-    handleEscapeKey: (e) => {
-        if (e.key === 'Escape' && state.isFullscreen) {
-            fullscreenManager.toggleFullscreen();
-        }
-    }
-};
-
 // Event Listeners
 function initializeEventListeners() {
+    // Handle setting changes
+    const handleSettingChange = () => {
+        utils.resetTyping();
+        styleManager.updateOutputStyle();
+    };
+
     // Theme listeners
     state.systemThemePreference.addListener(themeManager.handleSystemThemeChange);
     elements.systemTheme.addEventListener('click', () => themeManager.setTheme('system', true));
@@ -342,13 +427,13 @@ function initializeEventListeners() {
     elements.boldToggle.addEventListener('click', () => {
         state.isBold = !state.isBold;
         elements.boldToggle.classList.toggle('active');
-        styleManager.updateOutputStyle();
+        handleSettingChange();
     });
 
     elements.italicToggle.addEventListener('click', () => {
         state.isItalic = !state.isItalic;
         elements.italicToggle.classList.toggle('active');
-        styleManager.updateOutputStyle();
+        handleSettingChange();
     });
 
     // Font size validation
@@ -356,7 +441,30 @@ function initializeEventListeners() {
         const value = parseInt(elements.fontSize.value);
         if (value < 12) elements.fontSize.value = 12;
         if (value > 96) elements.fontSize.value = 96;
-        styleManager.updateOutputStyle();
+        handleSettingChange();
+    });
+
+    // Width control listener
+    elements.outputWidth.addEventListener('input', () => {
+        styleManager.updateWidthValue();
+        handleSettingChange();
+    });
+
+    // Text color listener
+    elements.textColor.addEventListener('change', handleSettingChange);
+
+    // Font family listener
+    elements.fontFamily.addEventListener('change', handleSettingChange);
+
+    // Speed control listener
+    elements.speed.addEventListener('change', handleSettingChange);
+
+    // Preset text buttons listener
+    elements.presetButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            elements.userInput.value = button.dataset.text;
+            styleManager.updateCharCounter();
+        });
     });
 
     // Background image handling
@@ -395,16 +503,6 @@ function initializeEventListeners() {
     // Text input listeners
     elements.userInput.addEventListener('input', styleManager.updateCharCounter);
 
-    // Preset text buttons
-    elements.presetButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const presetText = button.getAttribute('data-text');
-            elements.userInput.value = presetText;
-            styleManager.updateCharCounter();
-            elements.userInput.focus();
-        });
-    });
-
     // Start button
     elements.startButton.addEventListener('click', async () => {
         const text = elements.userInput.value.trim();
@@ -425,6 +523,12 @@ function initializeEventListeners() {
         }
     });
 
+    // Fullscreen button listener
+    elements.fullscreenButton.addEventListener('click', fullscreenManager.enterFullscreen);
+
+    // Escape key listener for fullscreen
+    document.addEventListener('keydown', fullscreenManager.handleEscapeKey);
+
     // Enter key handling
     elements.userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -432,21 +536,13 @@ function initializeEventListeners() {
             elements.startButton.click();
         }
     });
-
-    // Text color listener
-    elements.textColor.addEventListener('change', styleManager.updateOutputStyle);
-
-    // Fullscreen toggle listener
-    elements.fullscreenToggle.addEventListener('click', fullscreenManager.toggleFullscreen);
-
-    // Escape key listener for fullscreen
-    document.addEventListener('keydown', fullscreenManager.handleEscapeKey);
 }
 
 // Initialize
 function initialize() {
     styleManager.updateCharCounter();
     styleManager.updateOutputStyle();
+    styleManager.updateWidthValue();
     themeManager.setTheme('system', true);
     initializeEventListeners();
 }
