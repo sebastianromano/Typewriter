@@ -69,10 +69,37 @@
             color: var(--text-color);
         }
 
-        .input-area {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
+        .textarea-container {
+            position: relative;
+        }
+
+        #userInput {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            resize: vertical;
+        }
+
+        .char-counter {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            font-size: 12px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .error-message {
+            color: #d93025;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
         }
 
         input[type="text"],
@@ -91,14 +118,11 @@
 
         input[type="text"]:focus,
         select:focus,
-        input[type="number"]:focus {
+        input[type="number"]:focus,
+        #userInput:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
-        }
-
-        #userInput {
-            flex: 1;
         }
 
         .theme-toggles {
@@ -186,7 +210,11 @@
         <div class="controls">
             <div class="control-group">
                 <label for="userInput">Your Text</label>
-                <input type="text" id="userInput" placeholder="Type your text here...">
+                <div class="textarea-container">
+                    <textarea id="userInput" placeholder="Type your text here..." rows="4"></textarea>
+                    <div class="char-counter">0 characters | 0 words</div>
+                </div>
+                <div class="error-message" id="errorMessage"></div>
             </div>
 
             <div class="control-group">
@@ -252,27 +280,43 @@
         const lightTheme = document.getElementById('lightTheme');
         const darkTheme = document.getElementById('darkTheme');
         const bgImage = document.getElementById('bgImage');
+        const charCounter = document.querySelector('.char-counter');
+        const errorMessage = document.getElementById('errorMessage');
 
-        // Common typos for frequently misspelled words
+        // Enhanced common typos with more variations
         const commonTypos = {
-            'the': 'teh',
-            'and': 'adn',
-            'that': 'taht',
-            'with': 'wiht',
-            'here': 'heer',
-            'there': 'tehre',
-            'would': 'wuold',
-            'should': 'shuold',
-            'could': 'cuold',
-            'what': 'waht',
-            'when': 'wehn',
-            'where': 'wehre'
+            'the': ['teh', 'hte', 'th'],
+            'and': ['adn', 'nad', 'annd'],
+            'that': ['taht', 'tht', 'thta'],
+            'with': ['wiht', 'whit', 'witth'],
+            'here': ['heer', 'hrre', 'heree'],
+            'there': ['tehre', 'ther', 'therre'],
+            'would': ['wuold', 'wold', 'woild'],
+            'should': ['shuold', 'shoudd', 'shold'],
+            'could': ['cuold', 'coud', 'coulf'],
+            'what': ['waht', 'whatt', 'wht'],
+            'when': ['wehn', 'whenn', 'whn'],
+            'where': ['wehre', 'wherre', 'wher'],
+            'this': ['tihs', 'thiss', 'thhis'],
+            'have': ['hvae', 'ahve', 'havv'],
+            'your': ['yoru', 'yuor', 'yur']
         };
 
         // Style controls
         let isBold = false;
         let isItalic = false;
 
+        // Character counter
+        userInput.addEventListener('input', updateCharCounter);
+
+        function updateCharCounter() {
+            const text = userInput.value;
+            const chars = text.length;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            charCounter.textContent = `${chars} characters | ${words} words`;
+        }
+
+        // Style toggles
         boldToggle.addEventListener('click', () => {
             isBold = !isBold;
             boldToggle.classList.toggle('active');
@@ -302,28 +346,52 @@
             output.style.background = '';
         });
 
-        // Background image control
+        // Font size validation
+        fontSize.addEventListener('input', () => {
+            const value = parseInt(fontSize.value);
+            if (value < 12) fontSize.value = 12;
+            if (value > 96) fontSize.value = 96;
+            updateOutputStyle();
+        });
+
+        // Background image handling
         bgImage.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
+                if (file.size > 5000000) { // 5MB limit
+                    showError('Image size should be less than 5MB');
+                    bgImage.value = '';
+                    return;
+                }
+                output.style.opacity = '0.5';
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     output.style.background = `url(${e.target.result})`;
                     output.classList.add('custom-bg');
                     lightTheme.classList.remove('active');
                     darkTheme.classList.remove('active');
+                    output.style.opacity = '1';
+                    hideError();
+                };
+                reader.onerror = () => {
+                    showError('Error loading image. Please try another file.');
+                    output.style.opacity = '1';
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        function updateOutputStyle() {
-            output.style.fontFamily = fontFamily.value;
-            output.style.fontSize = `${fontSize.value}px`;
-            output.style.fontWeight = isBold ? 'bold' : 'normal';
-            output.style.fontStyle = isItalic ? 'italic' : 'normal';
+        // Error handling
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
         }
 
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        // Utility functions
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
@@ -341,86 +409,145 @@
             return speeds[speed.value];
         }
 
-        function shouldMakeTypo(wordCount) {
-            // Limit to 2 typos per 30 words
-            return Math.random() < (2 / 30) && wordCount % 15 === 0;
+        // Enhanced typo generation
+        function getTypo(word) {
+            const lowerWord = word.toLowerCase();
+            if (commonTypos[lowerWord]) {
+                const typos = commonTypos[lowerWord];
+                return typos[Math.floor(Math.random() * typos.length)];
+            }
+
+            // If no predefined typo, create a random one
+            const chars = word.split('');
+            const typoType = Math.random();
+
+            if (typoType < 0.33 && chars.length > 1) {
+                // Swap adjacent characters
+                const pos = Math.floor(Math.random() * (chars.length - 1));
+                [chars[pos], chars[pos + 1]] = [chars[pos + 1], chars[pos]];
+            } else if (typoType < 0.66 && chars.length > 2) {
+                // Double a random character
+                const pos = Math.floor(Math.random() * chars.length);
+                chars.splice(pos, 0, chars[pos]);
+            } else {
+                // Omit a character
+                const pos = Math.floor(Math.random() * chars.length);
+                chars.splice(pos, 1);
+            }
+
+            return chars.join('');
         }
 
+        function updateOutputStyle() {
+            output.style.fontFamily = fontFamily.value;
+            output.style.fontSize = `${fontSize.value}px`;
+            output.style.fontWeight = isBold ? 'bold' : 'normal';
+            output.style.fontStyle = isItalic ? 'italic' : 'normal';
+        }
+
+        // Enhanced typing function
         async function typeText(text) {
-            output.textContent = '';
-            let currentText = '';
-            const words = text.split(' ');
-            let typosRemaining = Math.floor(words.length / 15) * 2; // 2 typos per 30 words
+            try {
+                output.textContent = '';
+                let currentText = '';
+                const words = text.split(' ');
+                const totalWords = words.length;
+                const typosToMake = Math.max(2, Math.floor(totalWords / 15) * 2); // At least 2 typos
+                let typosRemaining = typosToMake;
 
-            updateOutputStyle();
+                updateOutputStyle();
 
-            for (let i = 0; i < words.length; i++) {
-                const word = words[i];
-                const typingSpeed = getTypingSpeed();
+                for (let i = 0; i < words.length; i++) {
+                    const word = words[i];
+                    const typingSpeed = getTypingSpeed();
 
-                // Decide if we should make a typo for this word
-                if (word.length > 2 && typosRemaining > 0 && shouldMakeTypo(i)) {
-                    typosRemaining--;
-                    const typoWord = commonTypos[word.toLowerCase()] || word.split('').reverse().join('');
+                    // Improved typo probability calculation
+                    const shouldMakeTypoHere = typosRemaining > 0 &&
+                        word.length > 2 &&
+                        Math.random() < (typosRemaining / (words.length - i));
 
-                    // Type the typo
-                    for (let char of typoWord) {
-                        currentText += char;
-                        output.textContent = currentText;
-                        await sleep(getRandomInt(typingSpeed.min, typingSpeed.max));
+                    if (shouldMakeTypoHere) {
+                        typosRemaining--;
+                        const typoWord = getTypo(word);
+
+                        // Type the typo
+                        for (let char of typoWord) {
+                            currentText += char;
+                            output.textContent = currentText;
+                            await sleep(getRandomInt(typingSpeed.min, typingSpeed.max));
+                        }
+
+                        // Pause to "notice" the error
+                        await sleep(getRandomInt(400, 800));
+
+                        // Delete the typo
+                        for (let j = 0; j < typoWord.length; j++) {
+                            currentText = currentText.slice(0, -1);
+                            output.textContent = currentText;
+                            await sleep(getRandomInt(30, 80));
+                        }
+
+                        // Pause before correction
+                        await sleep(getRandomInt(200, 400));
+
+                        // Type the correct word
+                        for (let char of word) {
+                            currentText += char;
+                            output.textContent = currentText;
+                            await sleep(getRandomInt(typingSpeed.min, typingSpeed.max));
+                        }
+                    } else {
+                        // Type the word normally
+                        for (let char of word) {
+                            currentText += char;
+                            output.textContent = currentText;
+                            await sleep(getRandomInt(typingSpeed.min, typingSpeed.max));
+                        }
                     }
 
-                    // Pause to "notice" the error
-                    await sleep(500);
-
-                    // Delete the typo
-                    for (let j = 0; j < typoWord.length; j++) {
-                        currentText = currentText.slice(0, -1);
-                        output.textContent = currentText;
-                        await sleep(getRandomInt(30, 80));
-                    }
-
-                    // Type the correct word
-                    for (let char of word) {
-                        currentText += char;
-                        output.textContent = currentText;
-                        await sleep(getRandomInt(typingSpeed.min, typingSpeed.max));
-                    }
-                } else {
-                    // Type the word normally
-                    for (let char of word) {
-                        currentText += char;
+                    // Add space between words
+                    if (i < words.length - 1) {
+                        currentText += ' ';
                         output.textContent = currentText;
                         await sleep(getRandomInt(typingSpeed.min, typingSpeed.max));
                     }
                 }
-
-                // Add space between words
-                if (i < words.length - 1) {
-                    currentText += ' ';
-                    output.textContent = currentText;
-                    await sleep(getRandomInt(typingSpeed.min, typingSpeed.max));
-                }
+            } catch (error) {
+                showError('An error occurred while typing. Please try again.');
+                console.error('Typing error:', error);
             }
         }
 
-        startButton.addEventListener('click', () => {
+        // Button handling
+        startButton.addEventListener('click', async () => {
             const text = userInput.value.trim();
-            if (text) {
+            if (!text) {
+                showError('Please enter some text to type');
+                return;
+            }
+
+            try {
+                hideError();
                 startButton.disabled = true;
-                typeText(text).then(() => {
-                    startButton.disabled = false;
-                });
+                await typeText(text);
+            } catch (error) {
+                showError('An error occurred. Please try again.');
+                console.error('Error:', error);
+            } finally {
+                startButton.disabled = false;
             }
         });
 
+        // Enter key handling
         userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
                 startButton.click();
             }
         });
 
-        // Initialize styles
+        // Initialize
+        updateCharCounter();
         updateOutputStyle();
     </script>
 </body>
