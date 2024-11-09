@@ -17,7 +17,9 @@ const elements = {
     removeImage: document.getElementById('removeImage'),
     charCounter: document.querySelector('.char-counter'),
     errorMessage: document.getElementById('errorMessage'),
-    presetButtons: document.querySelectorAll('.preset-button')
+    presetButtons: document.querySelectorAll('.preset-button'),
+    textColor: document.getElementById('textColor'),
+    fullscreenToggle: document.getElementById('fullscreenToggle')
 };
 
 // Configuration Objects
@@ -99,7 +101,8 @@ const config = {
 const state = {
     isBold: false,
     isItalic: false,
-    systemThemePreference: window.matchMedia('(prefers-color-scheme: dark)')
+    systemThemePreference: window.matchMedia('(prefers-color-scheme: dark)'),
+    isFullscreen: false
 };
 
 // Utility Functions
@@ -173,6 +176,14 @@ const styleManager = {
         const chars = text.length;
         const words = text.trim() ? text.trim().split(/\s+/).length : 0;
         elements.charCounter.textContent = `${chars} characters | ${words} words`;
+    },
+
+    updateOutputStyle: () => {
+        elements.output.style.fontFamily = elements.fontFamily.value;
+        elements.output.style.fontSize = `${elements.fontSize.value}px`;
+        elements.output.style.fontWeight = state.isBold ? 'bold' : 'normal';
+        elements.output.style.fontStyle = state.isItalic ? 'italic' : 'normal';
+        elements.output.style.color = elements.textColor.value || 'inherit';
     }
 };
 
@@ -273,6 +284,47 @@ const typingManager = {
         } catch (error) {
             utils.showError('An error occurred while typing. Please try again.');
             console.error('Typing error:', error);
+        }
+    }
+};
+
+const fullscreenManager = {
+    toggleFullscreen: () => {
+        state.isFullscreen = !state.isFullscreen;
+        elements.fullscreenToggle.classList.toggle('active');
+        elements.output.classList.toggle('fullscreen');
+
+        if (state.isFullscreen) {
+            // Create exit button if it doesn't exist
+            if (!document.querySelector('.exit-fullscreen')) {
+                const exitButton = document.createElement('button');
+                exitButton.className = 'exit-fullscreen';
+                exitButton.textContent = 'Exit Fullscreen';
+                exitButton.addEventListener('click', () => {
+                    fullscreenManager.toggleFullscreen();
+                });
+                document.body.appendChild(exitButton);
+            }
+            // Hide controls and start button
+            elements.controls.style.display = 'none';
+            elements.startButton.style.display = 'none';
+        } else {
+            // Remove exit button and show controls
+            const exitButton = document.querySelector('.exit-fullscreen');
+            if (exitButton) {
+                exitButton.remove();
+            }
+            elements.controls.style.display = 'grid';
+            elements.startButton.style.display = 'block';
+        }
+
+        // Update styles to ensure proper display
+        styleManager.updateOutputStyle();
+    },
+
+    handleEscapeKey: (e) => {
+        if (e.key === 'Escape' && state.isFullscreen) {
+            fullscreenManager.toggleFullscreen();
         }
     }
 };
@@ -380,6 +432,15 @@ function initializeEventListeners() {
             elements.startButton.click();
         }
     });
+
+    // Text color listener
+    elements.textColor.addEventListener('change', styleManager.updateOutputStyle);
+
+    // Fullscreen toggle listener
+    elements.fullscreenToggle.addEventListener('click', fullscreenManager.toggleFullscreen);
+
+    // Escape key listener for fullscreen
+    document.addEventListener('keydown', fullscreenManager.handleEscapeKey);
 }
 
 // Initialize

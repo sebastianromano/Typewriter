@@ -36,7 +36,23 @@
                 </div>
                 <div class="error-message" id="errorMessage"></div>
             </div>
-            <!-- Rest of the controls remain the same -->
+
+            <!-- Color Picker Control -->
+            <div class="control-group">
+                <label for="textColor">Text Color</label>
+                <select id="textColor">
+                    <option value="">Default</option>
+                    <option value="#000000">Black</option>
+                    <option value="#FFFFFF">White</option>
+                    <option value="#FF0000">Red</option>
+                    <option value="#0000FF">Blue</option>
+                    <option value="#008000">Green</option>
+                    <option value="#800080">Purple</option>
+                    <option value="#FFA500">Orange</option>
+                </select>
+            </div>
+
+            <!-- Font Family Control -->
             <div class="control-group">
                 <label for="fontFamily">Font Family</label>
                 <select id="fontFamily">
@@ -47,12 +63,13 @@
                     <option value="Verdana, sans-serif">Verdana</option>
                 </select>
             </div>
-            <!-- Rest of the HTML remains unchanged -->
+
             <!-- Font Size Control -->
             <div class="control-group">
                 <label for="fontSize">Font Size (px)</label>
                 <input type="number" id="fontSize" value="48" min="12" max="96">
             </div>
+
             <!-- Speed Control -->
             <div class="control-group">
                 <label for="speed">Typing Speed</label>
@@ -62,14 +79,17 @@
                     <option value="fast">Fast</option>
                 </select>
             </div>
+
             <!-- Style Toggles -->
             <div class="control-group">
                 <label>Style</label>
                 <div class="theme-toggles">
                     <button id="boldToggle" class="theme-button">Bold</button>
                     <button id="italicToggle" class="theme-button">Italic</button>
+                    <button id="fullscreenToggle" class="theme-button">Fullscreen</button>
                 </div>
             </div>
+
             <!-- Theme Selection -->
             <div class="control-group">
                 <label>Theme</label>
@@ -85,12 +105,13 @@
                 </div>
             </div>
         </div>
+
         <!-- Action Button -->
         <button id="startButton">Start Typing</button>
+
         <!-- Output Display -->
         <div id="output"></div>
     </div>
-    <!-- Scripts -->
     <script src="script.js"></script>
 </body>
 
