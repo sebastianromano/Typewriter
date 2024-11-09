@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #333;
+            border-radius: 4px;
+        }
+
+        #startButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #startButton:hover {
+            background-color: #555;
+        }
+
+        #output {
+            flex: 1;
+            font-size: 48px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-word;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            #output {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Type your text here...">
+            <button id="startButton">Type!</button>
+        </div>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const userInput = document.getElementById('userInput');
+        const startButton = document.getElementById('startButton');
+
+        // Common typos and their corrections
+        const commonTypos = {
+            'the': 'teh',
+            'and': 'adn',
+            'that': 'taht',
+            'with': 'wiht',
+            'here': 'heer',
+            'there': 'tehre',
+            'would': 'wuold',
+            'should': 'shuold',
+            'could': 'cuold',
+            'what': 'waht',
+            'when': 'wehn',
+            'where': 'wehre'
+        };
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function shouldMakeTypo() {
+            return Math.random() < 0.15; // 15% chance of typo
+        }
+
+        function getRandomTypoWord(word) {
+            // Check if it's a common word with a predefined typo
+            if (commonTypos[word.toLowerCase()]) {
+                return commonTypos[word.toLowerCase()];
+            }
+
+            // Otherwise, create a random typo
+            const chars = word.split('');
+            const typoType = Math.random();
+
+            if (typoType < 0.33 && chars.length > 1) {
+                // Swap adjacent characters
+                const pos = Math.floor(Math.random() * (chars.length - 1));
+                [chars[pos], chars[pos + 1]] = [chars[pos + 1], chars[pos]];
+            } else if (typoType < 0.66 && chars.length > 2) {
+                // Double a random character
+                const pos = Math.floor(Math.random() * chars.length);
+                chars.splice(pos, 0, chars[pos]);
+            } else {
+                // Replace a character with an adjacent one on the keyboard
+                const keyboardRows = {
+                    'a': 'sqwz', 'b': 'vghn', 'c': 'xdfv', 'd': 'serfcx',
+                    'e': 'wrsdf', 'f': 'drtgvc', 'g': 'ftyhbv', 'h': 'gyujnb',
+                    'i': 'ujklo', 'j': 'huikmn', 'k': 'jiolm', 'l': 'kop',
+                    'm': 'njk', 'n': 'bhjm', 'o': 'iklp', 'p': 'ol',
+                    'q': 'wa', 'r': 'edft', 's': 'awdzx', 't': 'rfgy',
+                    'u': 'yhji', 'v': 'cfgb', 'w': 'qase', 'x': 'zsdc',
+                    'y': 'tghu', 'z': 'asx'
+                };
+
+                const pos = Math.floor(Math.random() * chars.length);
+                const char = chars[pos].toLowerCase();
+                if (keyboardRows[char]) {
+                    const adjacent = keyboardRows[char];
+                    chars[pos] = adjacent[Math.floor(Math.random() * adjacent.length)];
+                }
+            }
+
+            return chars.join('');
+        }
+
+        async function typeText(text) {
+            output.textContent = '';
+            let currentText = '';
+            const words = text.split(' ');
+
+            for (let i = 0; i < words.length; i++) {
+                const word = words[i];
+
+                // Decide if we should make a typo for this word
+                if (word.length > 2 && shouldMakeTypo()) {
+                    const typoWord = getRandomTypoWord(word);
+
+                    // Type the typo
+                    for (let char of typoWord) {
+                        currentText += char;
+                        output.textContent = currentText;
+                        await sleep(getRandomInt(50, 150));
+                    }
+
+                    // Pause to "notice" the error
+                    await sleep(getRandomInt(300, 800));
+
+                    // Delete the typo
+                    for (let j = 0; j < typoWord.length; j++) {
+                        currentText = currentText.slice(0, -1);
+                        output.textContent = currentText;
+                        await sleep(getRandomInt(30, 80));
+                    }
+
+                    // Type the correct word
+                    for (let char of word) {
+                        currentText += char;
+                        output.textContent = currentText;
+                        await sleep(getRandomInt(50, 150));
+                    }
+                } else {
+                    // Type the word normally
+                    for (let char of word) {
+                        currentText += char;
+                        output.textContent = currentText;
+                        await sleep(getRandomInt(50, 150));
+                    }
+                }
+
+                // Add space between words
+                if (i < words.length - 1) {
+                    currentText += ' ';
+                    output.textContent = currentText;
+                    await sleep(getRandomInt(50, 150));
+                }
+
+                // Occasional longer pause between words
+                if (Math.random() < 0.1) {
+                    await sleep(getRandomInt(400, 800));
+                }
+            }
+        }
+
+        startButton.addEventListener('click', () => {
+            const text = userInput.value.trim();
+            if (text) {
+                startButton.disabled = true;
+                typeText(text).then(() => {
+                    startButton.disabled = false;
+                });
+            }
+        });
+
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                startButton.click();
+            }
+        });
+    </script>
+</body>
+
+</html>
