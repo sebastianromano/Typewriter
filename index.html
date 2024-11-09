@@ -1,213 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <style>
-        :root {
-            --primary-color: #1a73e8;
-            --text-color: #202124;
-            --bg-color: #ffffff;
-            --surface-color: #f8f9fa;
-            --border-color: #dadce0;
-            --shadow-color: rgba(60, 64, 67, 0.3);
-            --transition-speed: 0.2s;
-        }
-
-        [data-theme="dark"] {
-            --primary-color: #8ab4f8;
-            --text-color: #e8eaed;
-            --bg-color: #202124;
-            --surface-color: #292a2d;
-            --border-color: #5f6368;
-            --shadow-color: rgba(0, 0, 0, 0.3);
-        }
-
-        * {
-            box-sizing: border-box;
-            transition: background-color var(--transition-speed), color var(--transition-speed);
-        }
-
-        body {
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            padding: 24px;
-            background-color: var(--surface-color);
-            border-radius: 12px;
-            box-shadow: 0 1px 3px var(--shadow-color);
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .control-group label {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-color);
-        }
-
-        .textarea-container {
-            position: relative;
-        }
-
-        #userInput {
-            width: 100%;
-            min-height: 100px;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 16px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: border-color 0.2s, box-shadow 0.2s;
-            resize: vertical;
-        }
-
-        .char-counter {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            font-size: 12px;
-            color: var(--text-color);
-            opacity: 0.7;
-        }
-
-        .error-message {
-            color: #d93025;
-            font-size: 14px;
-            margin-top: 8px;
-            display: none;
-        }
-
-        input[type="text"],
-        select,
-        input[type="number"],
-        input[type="file"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 16px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        input[type="text"]:focus,
-        select:focus,
-        input[type="number"]:focus,
-        #userInput:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
-        }
-
-        .theme-toggles {
-            display: flex;
-            gap: 12px;
-        }
-
-        .theme-button {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            background: none;
-            color: var(--text-color);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .theme-button.active {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        #startButton {
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 500;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 24px;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px var(--shadow-color);
-        }
-
-        #startButton:hover {
-            box-shadow: 0 4px 8px var(--shadow-color);
-            transform: translateY(-1px);
-        }
-
-        #startButton:disabled {
-            background-color: var(--border-color);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        #output {
-            flex: 1;
-            min-height: 300px;
-            padding: 32px;
-            background-color: var(--surface-color);
-            border-radius: 12px;
-            box-shadow: 0 1px 3px var(--shadow-color);
-            overflow-wrap: break-word;
-            transition: all 0.3s;
-        }
-
-        .custom-bg {
-            background-size: cover !important;
-            background-position: center !important;
-            color: white !important;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        @media (max-width: 768px) {
-            .controls {
-                grid-template-columns: 1fr;
-            }
-
-            .input-area {
-                flex-direction: column;
-            }
-
-            #startButton {
-                width: 100%;
-            }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typewriter Effect</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <div class="container">
         <div class="controls">
+            <!-- Text Input Section -->
             <div class="control-group">
                 <label for="userInput">Your Text</label>
                 <div class="textarea-container">
@@ -217,6 +21,7 @@
                 <div class="error-message" id="errorMessage"></div>
             </div>
 
+            <!-- Font Controls -->
             <div class="control-group">
                 <label for="fontFamily">Font Family</label>
                 <select id="fontFamily">
@@ -228,11 +33,13 @@
                 </select>
             </div>
 
+            <!-- Font Size Control -->
             <div class="control-group">
                 <label for="fontSize">Font Size (px)</label>
                 <input type="number" id="fontSize" value="48" min="12" max="96">
             </div>
 
+            <!-- Speed Control -->
             <div class="control-group">
                 <label for="speed">Typing Speed</label>
                 <select id="speed">
@@ -242,6 +49,7 @@
                 </select>
             </div>
 
+            <!-- Style Toggles -->
             <div class="control-group">
                 <label>Style</label>
                 <div class="theme-toggles">
@@ -250,306 +58,31 @@
                 </div>
             </div>
 
+            <!-- Theme Selection -->
             <div class="control-group">
                 <label>Theme</label>
                 <div class="theme-toggles">
-                    <button id="lightTheme" class="theme-button active">Light</button>
+                    <button id="systemTheme" class="theme-button active">System</button>
+                    <button id="lightTheme" class="theme-button">Light</button>
                     <button id="darkTheme" class="theme-button">Dark</button>
+                    <button id="customTheme" class="theme-button">Custom</button>
                 </div>
-            </div>
-
-            <div class="control-group">
-                <label for="bgImage">Background Image</label>
-                <input type="file" id="bgImage" accept="image/*">
+                <div id="customThemeSection" class="custom-theme-section">
+                    <input type="file" id="bgImage" accept="image/*">
+                    <button id="removeImage" class="theme-button remove-btn">Remove Image</button>
+                </div>
             </div>
         </div>
 
+        <!-- Action Button -->
         <button id="startButton">Start Typing</button>
+
+        <!-- Output Display -->
         <div id="output"></div>
     </div>
 
-    <script>
-        const output = document.getElementById('output');
-        const userInput = document.getElementById('userInput');
-        const startButton = document.getElementById('startButton');
-        const fontFamily = document.getElementById('fontFamily');
-        const fontSize = document.getElementById('fontSize');
-        const speed = document.getElementById('speed');
-        const boldToggle = document.getElementById('boldToggle');
-        const italicToggle = document.getElementById('italicToggle');
-        const lightTheme = document.getElementById('lightTheme');
-        const darkTheme = document.getElementById('darkTheme');
-        const bgImage = document.getElementById('bgImage');
-        const charCounter = document.querySelector('.char-counter');
-        const errorMessage = document.getElementById('errorMessage');
-
-        // Enhanced common typos with more variations
-        const commonTypos = {
-            'the': ['teh', 'hte', 'th'],
-            'and': ['adn', 'nad', 'annd'],
-            'that': ['taht', 'tht', 'thta'],
-            'with': ['wiht', 'whit', 'witth'],
-            'here': ['heer', 'hrre', 'heree'],
-            'there': ['tehre', 'ther', 'therre'],
-            'would': ['wuold', 'wold', 'woild'],
-            'should': ['shuold', 'shoudd', 'shold'],
-            'could': ['cuold', 'coud', 'coulf'],
-            'what': ['waht', 'whatt', 'wht'],
-            'when': ['wehn', 'whenn', 'whn'],
-            'where': ['wehre', 'wherre', 'wher'],
-            'this': ['tihs', 'thiss', 'thhis'],
-            'have': ['hvae', 'ahve', 'havv'],
-            'your': ['yoru', 'yuor', 'yur']
-        };
-
-        // Style controls
-        let isBold = false;
-        let isItalic = false;
-
-        // Character counter
-        userInput.addEventListener('input', updateCharCounter);
-
-        function updateCharCounter() {
-            const text = userInput.value;
-            const chars = text.length;
-            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-            charCounter.textContent = `${chars} characters | ${words} words`;
-        }
-
-        // Style toggles
-        boldToggle.addEventListener('click', () => {
-            isBold = !isBold;
-            boldToggle.classList.toggle('active');
-            updateOutputStyle();
-        });
-
-        italicToggle.addEventListener('click', () => {
-            isItalic = !isItalic;
-            italicToggle.classList.toggle('active');
-            updateOutputStyle();
-        });
-
-        // Theme controls
-        lightTheme.addEventListener('click', () => {
-            document.body.removeAttribute('data-theme');
-            lightTheme.classList.add('active');
-            darkTheme.classList.remove('active');
-            output.classList.remove('custom-bg');
-            output.style.background = '';
-        });
-
-        darkTheme.addEventListener('click', () => {
-            document.body.setAttribute('data-theme', 'dark');
-            darkTheme.classList.add('active');
-            lightTheme.classList.remove('active');
-            output.classList.remove('custom-bg');
-            output.style.background = '';
-        });
-
-        // Font size validation
-        fontSize.addEventListener('input', () => {
-            const value = parseInt(fontSize.value);
-            if (value < 12) fontSize.value = 12;
-            if (value > 96) fontSize.value = 96;
-            updateOutputStyle();
-        });
-
-        // Background image handling
-        bgImage.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                if (file.size > 5000000) { // 5MB limit
-                    showError('Image size should be less than 5MB');
-                    bgImage.value = '';
-                    return;
-                }
-                output.style.opacity = '0.5';
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    output.style.background = `url(${e.target.result})`;
-                    output.classList.add('custom-bg');
-                    lightTheme.classList.remove('active');
-                    darkTheme.classList.remove('active');
-                    output.style.opacity = '1';
-                    hideError();
-                };
-                reader.onerror = () => {
-                    showError('Error loading image. Please try another file.');
-                    output.style.opacity = '1';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Error handling
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-        }
-
-        function hideError() {
-            errorMessage.style.display = 'none';
-        }
-
-        // Utility functions
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        function getTypingSpeed() {
-            const speeds = {
-                slow: { min: 100, max: 300 },
-                medium: { min: 50, max: 150 },
-                fast: { min: 20, max: 80 }
-            };
-            return speeds[speed.value];
-        }
-
-        // Enhanced typo generation
-        function getTypo(word) {
-            const lowerWord = word.toLowerCase();
-            if (commonTypos[lowerWord]) {
-                const typos = commonTypos[lowerWord];
-                return typos[Math.floor(Math.random() * typos.length)];
-            }
-
-            // If no predefined typo, create a random one
-            const chars = word.split('');
-            const typoType = Math.random();
-
-            if (typoType < 0.33 && chars.length > 1) {
-                // Swap adjacent characters
-                const pos = Math.floor(Math.random() * (chars.length - 1));
-                [chars[pos], chars[pos + 1]] = [chars[pos + 1], chars[pos]];
-            } else if (typoType < 0.66 && chars.length > 2) {
-                // Double a random character
-                const pos = Math.floor(Math.random() * chars.length);
-                chars.splice(pos, 0, chars[pos]);
-            } else {
-                // Omit a character
-                const pos = Math.floor(Math.random() * chars.length);
-                chars.splice(pos, 1);
-            }
-
-            return chars.join('');
-        }
-
-        function updateOutputStyle() {
-            output.style.fontFamily = fontFamily.value;
-            output.style.fontSize = `${fontSize.value}px`;
-            output.style.fontWeight = isBold ? 'bold' : 'normal';
-            output.style.fontStyle = isItalic ? 'italic' : 'normal';
-        }
-
-        // Enhanced typing function
-        async function typeText(text) {
-            try {
-                output.textContent = '';
-                let currentText = '';
-                const words = text.split(' ');
-                const totalWords = words.length;
-                const typosToMake = Math.max(2, Math.floor(totalWords / 15) * 2); // At least 2 typos
-                let typosRemaining = typosToMake;
-
-                updateOutputStyle();
-
-                for (let i = 0; i < words.length; i++) {
-                    const word = words[i];
-                    const typingSpeed = getTypingSpeed();
-
-                    // Improved typo probability calculation
-                    const shouldMakeTypoHere = typosRemaining > 0 &&
-                        word.length > 2 &&
-                        Math.random() < (typosRemaining / (words.length - i));
-
-                    if (shouldMakeTypoHere) {
-                        typosRemaining--;
-                        const typoWord = getTypo(word);
-
-                        // Type the typo
-                        for (let char of typoWord) {
-                            currentText += char;
-                            output.textContent = currentText;
-                            await sleep(getRandomInt(typingSpeed.min, typingSpeed.max));
-                        }
-
-                        // Pause to "notice" the error
-                        await sleep(getRandomInt(400, 800));
-
-                        // Delete the typo
-                        for (let j = 0; j < typoWord.length; j++) {
-                            currentText = currentText.slice(0, -1);
-                            output.textContent = currentText;
-                            await sleep(getRandomInt(30, 80));
-                        }
-
-                        // Pause before correction
-                        await sleep(getRandomInt(200, 400));
-
-                        // Type the correct word
-                        for (let char of word) {
-                            currentText += char;
-                            output.textContent = currentText;
-                            await sleep(getRandomInt(typingSpeed.min, typingSpeed.max));
-                        }
-                    } else {
-                        // Type the word normally
-                        for (let char of word) {
-                            currentText += char;
-                            output.textContent = currentText;
-                            await sleep(getRandomInt(typingSpeed.min, typingSpeed.max));
-                        }
-                    }
-
-                    // Add space between words
-                    if (i < words.length - 1) {
-                        currentText += ' ';
-                        output.textContent = currentText;
-                        await sleep(getRandomInt(typingSpeed.min, typingSpeed.max));
-                    }
-                }
-            } catch (error) {
-                showError('An error occurred while typing. Please try again.');
-                console.error('Typing error:', error);
-            }
-        }
-
-        // Button handling
-        startButton.addEventListener('click', async () => {
-            const text = userInput.value.trim();
-            if (!text) {
-                showError('Please enter some text to type');
-                return;
-            }
-
-            try {
-                hideError();
-                startButton.disabled = true;
-                await typeText(text);
-            } catch (error) {
-                showError('An error occurred. Please try again.');
-                console.error('Error:', error);
-            } finally {
-                startButton.disabled = false;
-            }
-        });
-
-        // Enter key handling
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                startButton.click();
-            }
-        });
-
-        // Initialize
-        updateCharCounter();
-        updateOutputStyle();
-    </script>
+    <!-- Scripts -->
+    <script src="script.js"></script>
 </body>
 
 </html>

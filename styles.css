@@ -1,0 +1,295 @@
+/* CSS Variables for Theming */
+:root {
+    --primary-color: #1a73e8;
+    --text-color: #202124;
+    --bg-color: #ffffff;
+    --surface-color: #f8f9fa;
+    --border-color: #dadce0;
+    --shadow-color: rgba(60, 64, 67, 0.3);
+    --error-color: #d93025;
+    --transition-speed: 0.2s;
+}
+
+/* Dark Theme Variables */
+[data-theme="dark"] {
+    --primary-color: #8ab4f8;
+    --text-color: #e8eaed;
+    --bg-color: #202124;
+    --surface-color: #292a2d;
+    --border-color: #5f6368;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Global Styles */
+* {
+    box-sizing: border-box;
+    transition: background-color var(--transition-speed),
+        color var(--transition-speed),
+        border-color var(--transition-speed);
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, sans-serif;
+}
+
+/* Layout Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Controls Panel */
+.controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 24px;
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+/* Control Groups */
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* Text Area Styles */
+.textarea-container {
+    position: relative;
+}
+
+#userInput {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.char-counter {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    font-size: 12px;
+    color: var(--text-color);
+    opacity: 0.7;
+    background-color: var(--bg-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Form Controls */
+input[type="text"],
+select,
+input[type="number"],
+input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: all 0.2s;
+}
+
+/* Focus States */
+input[type="text"]:focus,
+select:focus,
+input[type="number"]:focus,
+#userInput:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+/* Theme Controls */
+.theme-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.theme-button {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: none;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.theme-button:hover {
+    background-color: var(--surface-color);
+    transform: translateY(-1px);
+}
+
+.theme-button.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Custom Theme Section */
+.custom-theme-section {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.remove-btn {
+    background-color: var(--error-color) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.remove-btn:hover {
+    opacity: 0.9;
+}
+
+/* Start Button */
+#startButton {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    align-self: flex-start;
+}
+
+#startButton:hover {
+    box-shadow: 0 4px 8px var(--shadow-color);
+    transform: translateY(-1px);
+}
+
+#startButton:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Output Area */
+#output {
+    flex: 1;
+    min-height: 300px;
+    padding: 32px;
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px var(--shadow-color);
+    overflow-wrap: break-word;
+    transition: all 0.3s;
+}
+
+/* Custom Background */
+.custom-bg {
+    background-size: cover !important;
+    background-position: center !important;
+    color: white !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Error Message */
+.error-message {
+    color: var(--error-color);
+    font-size: 14px;
+    margin-top: 8px;
+    display: none;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: rgba(217, 48, 37, 0.1);
+}
+
+/* Loading State */
+.loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+
+    .controls {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
+    #startButton {
+        width: 100%;
+        align-self: stretch;
+    }
+
+    .theme-toggles {
+        flex-wrap: wrap;
+    }
+
+    .theme-button {
+        flex: 1;
+        min-width: calc(50% - 4px);
+        text-align: center;
+    }
+
+    #output {
+        padding: 16px;
+        min-height: 200px;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .controls, #startButton {
+        display: none;
+    }
+
+    #output {
+        box-shadow: none;
+        border: none;
+    }
+}
