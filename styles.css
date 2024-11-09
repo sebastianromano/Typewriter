@@ -293,3 +293,52 @@ input[type="number"]:focus,
         border: none;
     }
 }
+
+.preset-texts {
+    margin-top: 12px;
+}
+
+.preset-texts label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+.preset-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.preset-button {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    flex: 1;
+    min-width: calc(20% - 8px);
+    text-align: center;
+}
+
+.preset-button:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .preset-button {
+        min-width: calc(50% - 4px);
+    }
+}
+
+@media (max-width: 480px) {
+    .preset-button {
+        min-width: 100%;
+    }
+}

@@ -18,10 +18,25 @@
                     <textarea id="userInput" placeholder="Type your text here..." rows="4"></textarea>
                     <div class="char-counter">0 characters | 0 words</div>
                 </div>
+                <div class="preset-texts">
+                    <label>Or choose a preset text:</label>
+                    <div class="preset-buttons">
+                        <button class="preset-button"
+                            data-text="The quick brown fox jumps over the lazy dog. This pangram contains every letter of the English alphabet at least once.">Pangram</button>
+                        <button class="preset-button"
+                            data-text="To be, or not to be, that is the question: Whether 'tis nobler in the mind to suffer The slings and arrows of outrageous fortune.">Shakespeare</button>
+                        <button class="preset-button"
+                            data-text="In the beginning God created the heavens and the earth. Now the earth was formless and empty, darkness was over the surface of the deep.">Genesis</button>
+                        <button class="preset-button"
+                            data-text="Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.">Gettysburg</button>
+                        <button class="preset-button"
+                            data-text="I have a dream that one day this nation will rise up and live out the true meaning of its creed: We hold these truths to be self-evident, that all men are created equal.">Dream
+                            Speech</button>
+                    </div>
+                </div>
                 <div class="error-message" id="errorMessage"></div>
             </div>
-
-            <!-- Font Controls -->
+            <!-- Rest of the controls remain the same -->
             <div class="control-group">
                 <label for="fontFamily">Font Family</label>
                 <select id="fontFamily">
@@ -32,13 +47,12 @@
                     <option value="Verdana, sans-serif">Verdana</option>
                 </select>
             </div>
-
+            <!-- Rest of the HTML remains unchanged -->
             <!-- Font Size Control -->
             <div class="control-group">
                 <label for="fontSize">Font Size (px)</label>
                 <input type="number" id="fontSize" value="48" min="12" max="96">
             </div>
-
             <!-- Speed Control -->
             <div class="control-group">
                 <label for="speed">Typing Speed</label>
@@ -48,7 +62,6 @@
                     <option value="fast">Fast</option>
                 </select>
             </div>
-
             <!-- Style Toggles -->
             <div class="control-group">
                 <label>Style</label>
@@ -57,7 +70,6 @@
                     <button id="italicToggle" class="theme-button">Italic</button>
                 </div>
             </div>
-
             <!-- Theme Selection -->
             <div class="control-group">
                 <label>Theme</label>
@@ -73,14 +85,11 @@
                 </div>
             </div>
         </div>
-
         <!-- Action Button -->
         <button id="startButton">Start Typing</button>
-
         <!-- Output Display -->
         <div id="output"></div>
     </div>
-
     <!-- Scripts -->
     <script src="script.js"></script>
 </body>

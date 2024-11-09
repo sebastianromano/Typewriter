@@ -16,7 +16,8 @@ const elements = {
     bgImage: document.getElementById('bgImage'),
     removeImage: document.getElementById('removeImage'),
     charCounter: document.querySelector('.char-counter'),
-    errorMessage: document.getElementById('errorMessage')
+    errorMessage: document.getElementById('errorMessage'),
+    presetButtons: document.querySelectorAll('.preset-button')
 };
 
 // Configuration Objects
@@ -294,6 +295,16 @@ function initializeEventListeners() {
 
     // Text input listeners
     elements.userInput.addEventListener('input', styleManager.updateCharCounter);
+
+    // Preset text buttons
+    elements.presetButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const presetText = button.getAttribute('data-text');
+            elements.userInput.value = presetText;
+            styleManager.updateCharCounter();
+            elements.userInput.focus();
+        });
+    });
 
     // Start button
     elements.startButton.addEventListener('click', async () => {
